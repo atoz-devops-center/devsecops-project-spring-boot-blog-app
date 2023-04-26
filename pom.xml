@@ -69,6 +69,9 @@
         <!-- Sonarcloud properties -->
         <sonar.organization>atoz-devops-center</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ../app-it/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
 
@@ -627,6 +630,37 @@
                 <spring.profiles.active>prod</spring.profiles.active>
                 <build.profile>prod</build.profile>
             </properties>
+        </profile>
+        <profile>
+            <id>coverage</id>
+            <build>
+            <plugins>
+                <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                    <id>prepare-agent</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                    </execution>
+                    <execution>
+                    <id>report</id>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                    <configuration>
+                        <formats>
+                        <format>XML</format>
+                        </formats>
+                    </configuration>
+                    </execution>
+                </executions>
+                </plugin>
+            </plugins>
+            </build>
         </profile>
 
     </profiles>
