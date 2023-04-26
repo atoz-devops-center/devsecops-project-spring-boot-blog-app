@@ -43,6 +43,8 @@ jobs:
           java-version: 17
           
       - name: Build project with Maven
+        env:
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
         run: mvn clean install
         
       - name: Dependency-Check Run
@@ -95,4 +97,5 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
