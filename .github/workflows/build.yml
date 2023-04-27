@@ -102,9 +102,12 @@ jobs:
             secrets/creds/docker username | DOCKER_USERNAME;
             secrets/creds/docker password | DOCKER_PASSWORD;
             secrets/creds/snyk snyk_token | SNYK_TOKEN
-
+    
+    outputs:
+      DOCKER_USERNAME: "${{ steps.import-secrets.outputs.DOCKER_USERNAME }}"
+      DOCKER_PASSWORD: "${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}"
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets ]
+    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets, snyk-code-security, snyk-code-security ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -199,11 +202,11 @@ jobs:
           distribution: 'zulu'
           java-version: 17
       
-      - name: Maven Install
-        # env:
-        #   DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: | 
-          mvn clean compile package -Pdocker      
+      # - name: Maven Install
+      #   # env:
+      #   #   DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: | 
+      #     mvn clean compile package -Pdocker      
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
