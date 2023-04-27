@@ -204,7 +204,7 @@ jobs:
           DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
         run: | 
           mvn clean compile package -Pdocker
-          ls -ltr /target/
+          ls -ltr
       
       -
         name: Set up Docker Buildx
