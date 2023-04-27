@@ -76,7 +76,7 @@ jobs:
            path: ${{github.workspace}}/reports
   
   vault-secrets:
-    needs: [build, Dependency-Checker]
+    needs: [build, Dependency-Cheker]
     name: Get Vault Secrets
     runs-on: ubuntu-latest
     steps:
