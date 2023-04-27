@@ -1,4 +1,4 @@
-FROM openjdk:21-slim-buster
+FROM openjdk:21-ea-13-jdk-slim
 VOLUME /tmp
 VOLUME /X/attachments
 COPY target/*.jar app.jar
