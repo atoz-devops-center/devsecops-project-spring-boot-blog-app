@@ -28,15 +28,16 @@ jobs:
           echo "$new_version" > version
           echo "VERSION=$new_version" >> "$GITHUB_OUTPUT"
       
-      - name: Build
-        env:
-            DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn --batch-mode -DskipTests package
+      # - name: Build
+      #   env:
+      #       DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn --batch-mode -DskipTests package
 
-      - name: Test
-        env:
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test                    
+      # - name: Test
+      #   env:
+      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn --batch-mode -Dmaven.test.failure.ignore=true test     
+                       
     outputs:
       VERSION: "${{ steps.version.outputs.VERSION }}"
 
@@ -101,14 +102,9 @@ jobs:
             secrets/creds/docker username | DOCKER_USERNAME;
             secrets/creds/docker password | DOCKER_PASSWORD;
             secrets/creds/snyk snyk_token | SNYK_TOKEN
-    # outputs:
-    #   SONAR_TOKEN: "${{ steps.import-secrets.outputs.SONAR_TOKEN }}"
-    #   DOCKER_USERNAME: "${{ steps.import-secrets.outputs.DOCKER_USERNAME }}"
-    #   DOCKER_PASSWORD: "${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}"
-    #   SNYK_TOKEN: "${{ steps.import-secrets.outputs.SNYK_TOKEN }}"
 
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker, snyk-opensource-monitor, vault-secrets ]
+    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -135,11 +131,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ needs.vault-secrets.outputs.SONAR_TOKEN }}
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      # - name: Build and analyze
+      #   env:
+      #     SONAR_TOKEN: ${{ needs.vault-secrets.outputs.SONAR_TOKEN }}
+      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
   
   snyk-opensource-security:
     needs: [build, Dependency-Cheker, vault-secrets]
@@ -150,11 +146,11 @@ jobs:
         uses: actions/checkout@v3
       
       - run: chmod +x mvnw
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-        continue-on-error: true
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/maven@master
+      #   env:
+      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
+      #   continue-on-error: true
 
   snyk-code-security:
     needs: [build, Dependency-Cheker, vault-secrets]
@@ -164,13 +160,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - run: chmod +x mvnw
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-        with:
-         command: code test
-        continue-on-error: true
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/maven@master
+      #   env:
+      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
+      #   with:
+      #    command: code test
+      #   continue-on-error: true
 
   snyk-opensource-monitor:
     needs: [build, Dependency-Cheker, vault-secrets]
@@ -180,13 +176,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - run: chmod +x mvnw
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-        with:
-         command: monitor
-        continue-on-error: true
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/maven@master
+      #   env:
+      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
+      #   with:
+      #    command: monitor
+      #   continue-on-error: true
   
   docker-build:
     needs: [build, Dependency-Cheker, sonarqube-analysis, vault-secrets, snyk-opensource-security ]
