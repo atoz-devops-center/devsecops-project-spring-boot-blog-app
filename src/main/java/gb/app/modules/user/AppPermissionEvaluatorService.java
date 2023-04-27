@@ -1,4 +1,4 @@
-wpackage src.main.java.gb.app.modules.user;
+package src.main.java.gb.app.modules.user;
 
 import gb.app.config.security.SecurityUtils;
 import gb.app.config.security.AppUserDetails;
