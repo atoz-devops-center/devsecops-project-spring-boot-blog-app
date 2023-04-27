@@ -91,11 +91,11 @@ jobs:
         id: import-secrets
         uses: hashicorp/vault-action@v2
         with:
-          url: http://${{ secrets.SONAR_URL }}:8200/
+          url: http://${{ secrets.VAULT_URL }}:8200/
           token: ${{ secrets.VAULT_TOKEN }}
           method: approle
-          roleId: ${{ secrets.VAULT_ROLEID }}
-          secretId: ${{ secrets.VAULT_SECRETID}}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET }}
           secrets: |
             secrets/creds/sonar sonar-token | SONAR_TOKEN;
             secrets/creds/docker username | DOCKER_USERNAME;
