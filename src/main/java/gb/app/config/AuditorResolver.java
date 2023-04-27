@@ -1,0 +1,28 @@
+package src.main.java.gb.app.config;
+
+import gb.app.config.security.SecurityUtils;
+import gb.app.domain.LiteUser;
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class AuditorResolver implements AuditorAware<LiteUser> {
+
+    private final EntityManager entityManager;
+
+    @Override
+    public Optional<LiteUser> getCurrentAuditor() {
+
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(entityManager.getReference(LiteUser.class, userId));
+    }
+}
