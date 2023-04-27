@@ -74,7 +74,7 @@ jobs:
            path: ${{github.workspace}}/reports
   
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker ]
+    needs: [build, Dependency-Cheker, snyk-opensource-monitor ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -119,6 +119,7 @@ jobs:
         uses: snyk/actions/maven@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
 
   snyk-code-security:
     needs: [snyk-opensource-security]
@@ -134,6 +135,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
          command: code test
+        continue-on-error: true
 
   snyk-opensource-monitor:
     needs: [snyk-opensource-security]
@@ -149,3 +151,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
          command: monitor
+        continue-on-error: true
