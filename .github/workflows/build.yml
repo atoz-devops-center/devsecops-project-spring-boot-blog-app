@@ -97,7 +97,7 @@ jobs:
           roleId: ${{ secrets.VAULT_ROLE_ID }}
           secretId: ${{ secrets.VAULT_SECRET }}
           secrets: |
-            secrets/creds/sonar sonar-token | SONAR_TOKEN;
+            secrets/creds/sonar sonar_token | SONAR_TOKEN;
             secrets/creds/docker username | DOCKER_USERNAME;
             secrets/creds/docker password | DOCKER_PASSWORD;
             secrets/creds/snyk snyk_token | SNYK_TOKEN
