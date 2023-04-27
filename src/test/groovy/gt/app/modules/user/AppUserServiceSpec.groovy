@@ -1,9 +1,9 @@
-package gb.app.modules.user
+package gt.app.modules.user
 
-import gb.app.config.Constants
-import gb.app.domain.AppUser
-import gb.app.modules.email.EmailService
-import gb.app.modules.user.dto.UserSignUpDTO
+import gt.app.config.Constants
+import gt.app.domain.AppUser
+import gt.app.modules.email.EmailService
+import gt.app.modules.user.dto.UserSignUpDTO
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import spock.lang.Specification

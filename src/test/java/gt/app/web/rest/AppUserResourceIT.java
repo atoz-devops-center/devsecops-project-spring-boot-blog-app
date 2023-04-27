@@ -1,6 +1,6 @@
-package gb.app.web.rest;
+package gt.app.web.rest;
 
-import gb.app.config.Constants;
+import gt.app.config.Constants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

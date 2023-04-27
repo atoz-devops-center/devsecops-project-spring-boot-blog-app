@@ -1,4 +1,4 @@
-package gb.app.config;
+package gt.app.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

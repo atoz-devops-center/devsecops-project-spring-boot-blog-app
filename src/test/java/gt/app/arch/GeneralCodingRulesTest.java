@@ -1,4 +1,4 @@
-package gb.app.arch;
+package gt.app.arch;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -93,8 +93,8 @@ class GeneralCodingRulesTest extends ArchitectureTest {
     @Test
     void noClassesShouldHaveMainMethods() {
         ArchRule rule = ArchRuleDefinition.methods()
-            .that().areDeclaredInClassesThat().resideInAPackage("gb.app..")
-            .and().areDeclaredInClassesThat().doNotHaveFullyQualifiedName("gb.app.Application")
+            .that().areDeclaredInClassesThat().resideInAPackage("gt.app..")
+            .and().areDeclaredInClassesThat().doNotHaveFullyQualifiedName("gt.app.Application")
             .and().arePublic()
             .and().areStatic()
             .should().notHaveName("main")

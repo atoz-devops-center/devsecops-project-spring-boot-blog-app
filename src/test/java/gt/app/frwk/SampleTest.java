@@ -1,4 +1,4 @@
-package gb.app.frwk;
+package gt.app.frwk;
 
 import com.codeborne.selenide.Browsers;
 import com.codeborne.selenide.Configuration;

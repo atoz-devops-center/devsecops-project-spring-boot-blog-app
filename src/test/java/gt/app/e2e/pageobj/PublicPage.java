@@ -1,4 +1,4 @@
-package gb.app.e2e.pageobj;
+package gt.app.e2e.pageobj;
 
 import com.codeborne.selenide.Selenide;
 

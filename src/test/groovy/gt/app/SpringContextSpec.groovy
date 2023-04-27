@@ -1,7 +1,7 @@
-package gb.app
+package gt.app
 
-import gb.app.config.Constants
-import gb.app.web.rest.HelloResource
+import gt.app.config.Constants
+import gt.app.web.rest.HelloResource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles

@@ -1,7 +1,7 @@
-package gb.app;
+package gt.app;
 
-import gb.app.config.Constants;
-import gb.app.web.rest.HelloResource;
+import gt.app.config.Constants;
+import gt.app.web.rest.HelloResource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

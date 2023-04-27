@@ -1,4 +1,4 @@
-package gb.app.config;
+package gt.app.config;
 
 import lombok.Data;
 import org.hibernate.boot.Metadata;

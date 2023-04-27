@@ -1,4 +1,4 @@
-package gb.app.arch;
+package gt.app.arch;
 
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;

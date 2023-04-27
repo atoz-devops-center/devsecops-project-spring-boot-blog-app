@@ -1,4 +1,4 @@
-package gb.app
+package gt.app
 
 import spock.lang.Specification
 

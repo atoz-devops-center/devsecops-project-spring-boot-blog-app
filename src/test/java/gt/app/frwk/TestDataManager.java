@@ -1,7 +1,7 @@
-package gb.app.frwk;
+package gt.app.frwk;
 
-import gb.app.DataCreator;
-import gb.app.config.MetadataExtractorIntegrator;
+import gt.app.DataCreator;
+import gt.app.config.MetadataExtractorIntegrator;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.Metadata;
 import org.hibernate.mapping.Collection;

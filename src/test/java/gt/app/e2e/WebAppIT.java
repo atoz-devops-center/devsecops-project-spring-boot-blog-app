@@ -1,9 +1,9 @@
-package gb.app.e2e;
+package gt.app.e2e;
 
-import gb.app.config.Constants;
-import gb.app.e2e.pageobj.*;
-import gb.app.frwk.BaseSeleniumTest;
-import gb.app.frwk.TestDataManager;
+import gt.app.config.Constants;
+import gt.app.e2e.pageobj.*;
+import gt.app.frwk.BaseSeleniumTest;
+import gt.app.frwk.TestDataManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
