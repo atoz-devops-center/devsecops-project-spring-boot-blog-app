@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  generate-version:
-    name: Version Generate
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,6 +27,25 @@ jobs:
           new_version="$(echo "$current_version" | awk -F. '{$3 = $3 + 1;} 1' OFS=".")"
           echo "$new_version" > version
           echo "VERSION=$new_version" >> "$GITHUB_OUTPUT"
+      
+      - name: Build
+        env:
+            DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: mvn --batch-mode -DskipTests package
+
+      - name: Test
+        env:
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+
+      - name: Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Maven Tests
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: true                       
 
   Dependency-Cheker:
     name: OWASP Dependency Cheker
@@ -41,12 +60,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 17
-          
-      - name: Build project with Maven
-        env:
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn clean install
-        
+
       - name: Dependency-Check Run
         env:
           # actions/setup-java changes JAVA_HOME so it needs to be reset to match the dependency-check docker image
@@ -68,7 +82,7 @@ jobs:
            path: ${{github.workspace}}/reports
   
   sonarqube-analysis:
-    needs: [generate-version, Dependency-Cheker]
+    needs: [build, Dependency-Cheker]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -99,3 +113,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        # Force to fail step after specific time.
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
