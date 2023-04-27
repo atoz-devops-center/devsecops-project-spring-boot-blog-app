@@ -189,7 +189,7 @@ jobs:
         continue-on-error: true
   
   docker-build:
-    needs: [generate-version, sonarqube-analysis]
+    needs: [build, Dependency-Cheker, sonarqube-analysis, vault-secrets, snyk-opensource-monitor ]
     name: Docker Build and Push
     runs-on: ubuntu-latest
 
