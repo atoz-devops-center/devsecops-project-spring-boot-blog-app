@@ -202,7 +202,7 @@ jobs:
       - name: Maven Install
         env:
           DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn clean install 
+        run: mvn clean compile package -Pdocker
       
       -
         name: Set up Docker Buildx
