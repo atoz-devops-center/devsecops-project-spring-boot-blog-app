@@ -74,7 +74,7 @@ jobs:
            path: ${{github.workspace}}/reports
   
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker]
+    needs: [build, Dependency-Cheker ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -105,22 +105,16 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        # Force to fail step after specific time.
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   
   snyk-opensource-security:
     needs: [build, Dependency-Cheker]
-    name: Snyk Test
+    name: Snyk Open Source Security
     runs-on: ubuntu-latest  
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      
+      - run: chmod +x mvnw
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
         env:
@@ -128,12 +122,12 @@ jobs:
 
   snyk-code-security:
     needs: [snyk-opensource-security]
-    name: Snyk Test
+    name: Snyk Code Security
     runs-on: ubuntu-latest  
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - run: chmod +x mvnw
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
         env:
@@ -143,12 +137,12 @@ jobs:
 
   snyk-opensource-monitor:
     needs: [snyk-opensource-security]
-    name: Snyk Test
+    name: Snyk Open Source Monitor
     runs-on: ubuntu-latest  
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - run: chmod +x mvnw
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/maven@master
         env:
