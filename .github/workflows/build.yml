@@ -101,11 +101,11 @@ jobs:
             secrets/creds/docker username | DOCKER_USERNAME;
             secrets/creds/docker password | DOCKER_PASSWORD;
             secrets/creds/snyk snyk_token | SNYK_TOKEN
-    outputs:
-      SONAR_TOKEN: "${{ steps.import-secrets.outputs.SONAR_TOKEN }}"
-      DOCKER_USERNAME: "${{ steps.import-secrets.outputs.DOCKER_USERNAME }}"
-      DOCKER_PASSWORD: "${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}"
-      SNYK_TOKEN: "${{ steps.import-secrets.outputs.SNYK_TOKEN }}"
+    # outputs:
+    #   SONAR_TOKEN: "${{ steps.import-secrets.outputs.SONAR_TOKEN }}"
+    #   DOCKER_USERNAME: "${{ steps.import-secrets.outputs.DOCKER_USERNAME }}"
+    #   DOCKER_PASSWORD: "${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}"
+    #   SNYK_TOKEN: "${{ steps.import-secrets.outputs.SNYK_TOKEN }}"
 
   sonarqube-analysis:
     needs: [build, Dependency-Cheker, snyk-opensource-monitor, vault-secrets ]
@@ -157,7 +157,7 @@ jobs:
         continue-on-error: true
 
   snyk-code-security:
-    needs: [snyk-opensource-security, vault-secrets]
+    needs: [build, Dependency-Cheker, vault-secrets]
     name: Snyk Code Security
     runs-on: ubuntu-latest  
     steps:
@@ -173,7 +173,7 @@ jobs:
         continue-on-error: true
 
   snyk-opensource-monitor:
-    needs: [snyk-opensource-security, vault-secrets]
+    needs: [build, Dependency-Cheker, vault-secrets]
     name: Snyk Open Source Monitor
     runs-on: ubuntu-latest  
     steps:
@@ -189,7 +189,7 @@ jobs:
         continue-on-error: true
   
   docker-build:
-    needs: [build, Dependency-Cheker, sonarqube-analysis, vault-secrets, snyk-opensource-monitor ]
+    needs: [build, Dependency-Cheker, sonarqube-analysis, vault-secrets, snyk-opensource-security ]
     name: Docker Build and Push
     runs-on: ubuntu-latest
 
