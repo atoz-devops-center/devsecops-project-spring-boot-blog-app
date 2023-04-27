@@ -70,7 +70,7 @@
         <sonar.organization>atoz-devops-center</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>
-            ../target/site/jacoco-aggregate/jacoco.xml
+            ${basedir}/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
@@ -507,7 +507,17 @@
                     </plugins>
                 </configuration>
             </plugin>
-
+            
+            <!--# Changes for Software Composition Analysis Scan using Snyk -->
+            <plugin>
+                <groupId>io.snyk</groupId>
+                <artifactId>snyk-maven-plugin</artifactId>
+                <version>2.2.0</version>
+                <inherited>false</inherited>
+                <configuration>
+                <org>atoz-devops-center/devsecops-project-spring-boot-blog-app</org>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
