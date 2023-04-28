@@ -88,26 +88,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Import Secrets
-        id: import-secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: http://${{ secrets.VAULT_URL }}:8200/
-          token: ${{ secrets.VAULT_TOKEN }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET }}
-          secrets: |
-            secrets/creds/sonar sonar_token | SONAR_TOKEN;
-            secrets/creds/docker username | DOCKER_USERNAME;
-            secrets/creds/docker password | DOCKER_PASSWORD;
-            secrets/creds/snyk snyk_token | SNYK_TOKEN
-    
-    outputs:
-      DOCKER_USERNAME: "${{ steps.import-secrets.outputs.DOCKER_USERNAME }}"
-      DOCKER_PASSWORD: "${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}"
+      # - name: Import Secrets
+      #   id: import-secrets
+      #   uses: hashicorp/vault-action@v2
+      #   with:
+      #     url: http://${{ secrets.VAULT_URL }}:8200/
+      #     token: ${{ secrets.VAULT_TOKEN }}
+      #     method: approle
+      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
+      #     secretId: ${{ secrets.VAULT_SECRET }}
+      #     secrets: |
+      #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
+      #       secrets/creds/docker username | DOCKER_USERNAME;
+      #       secrets/creds/docker password | DOCKER_PASSWORD;
+      #       secrets/creds/snyk snyk_token | SNYK_TOKEN
+
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets, snyk-code-security, snyk-code-security ]
+    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets, snyk-code-security, snyk-opensource-monitor ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -134,9 +131,28 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
+
+      # - name: Import Secrets
+      #   id: import-secrets
+      #   uses: hashicorp/vault-action@v2
+      #   with:
+      #     url: http://${{ secrets.VAULT_URL }}:8200/
+      #     token: ${{ secrets.VAULT_TOKEN }}
+      #     method: approle
+      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
+      #     secretId: ${{ secrets.VAULT_SECRET }}
+      #     secrets: |
+      #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
+      
       # - name: Build and analyze
       #   env:
-      #     SONAR_TOKEN: ${{ needs.vault-secrets.outputs.SONAR_TOKEN }}
+      #     SONAR_TOKEN: ${{ steps.import-secrets.outputs.SONAR_TOKEN }}
       #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
       #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
   
@@ -202,6 +218,25 @@ jobs:
           distribution: 'zulu'
           java-version: 17
       
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Import Secrets
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: http://${{ secrets.VAULT_URL }}:8200/
+          token: ${{ secrets.VAULT_TOKEN }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET }}
+          secrets: |
+            secrets/creds/docker username | DOCKER_USERNAME;
+            secrets/creds/docker password | DOCKER_PASSWORD;
       # - name: Maven Install
       #   # env:
       #   #   DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
@@ -214,8 +249,8 @@ jobs:
         name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ needs.vault-secrets.outputs.DOCKER_USERNAME }}
-          password: ${{ needs.vault-secrets.outputs.DOCKER_PASSWORD }}
+          username: ${{ steps.import-secrets.outputs.DOCKER_USERNAME }}
+          password: ${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}
           # username: ${{ secrets.DOCKER_USERNAME }}
           # password: ${{ secrets.DOCKER_PASSWORD }}
       -
