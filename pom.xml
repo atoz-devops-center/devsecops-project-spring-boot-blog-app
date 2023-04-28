@@ -30,7 +30,7 @@
         <!-- client deps -->
         <webjar-jquery.version>3.5.1</webjar-jquery.version>
         <webjar-bootstrap.version>4.5.0</webjar-bootstrap.version>
-        <webjar-popperjs.version>2.0.2</webjar-popperjs.version>
+        <webjar-popperjs.version>2.9.3</webjar-popperjs.version>
 
 
         <!-- code quality -->
