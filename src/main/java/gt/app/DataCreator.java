@@ -51,20 +51,20 @@ public class DataCreator {
         userAuthority.setName(Constants.ROLE_USER);
         authorityService.save(userAuthority);
 
-        String pwd = System.getenv("DATA_CREATOR_SECRET"); // to make it faster //value is 'pass'
+        String pwd = System.getenv("DATA_CREATOR_SECRET"); //"$2a$10$UtqWHf0BfCr41Nsy89gj4OCiL36EbTZ8g4o/IvFN2LArruHruiRXO"; // to make it faster //value is 'pass'
 
         AppUser adminUser = new AppUser("system", "System", "Tiwari", "system@email");
         adminUser.setPassword(pwd);
         adminUser.setAuthorities(authorityService.findByNameIn(Constants.ROLE_ADMIN, Constants.ROLE_USER));
         userService.save(adminUser);
 
-        AppUser user1 = new AppUser("user1", "Ganesh", "Balimidi", "gb@email");
+        AppUser user1 = new AppUser("user1", "Ganesh", "Tiwari", "gt@email");
         user1.setPassword(pwd);
         user1.setAuthorities(authorityService.findByNameIn(Constants.ROLE_USER));
         userService.save(user1);
 
 
-        AppUser user2 = new AppUser("user2", "Raji", "Kuntumalla", "rk@email");
+        AppUser user2 = new AppUser("user2", "Jyoti", "Kattel", "jk@email");
         user2.setPassword(pwd);
         user2.setAuthorities(authorityService.findByNameIn(Constants.ROLE_USER));
         userService.save(user2);

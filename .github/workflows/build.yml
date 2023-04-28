@@ -226,24 +226,6 @@ jobs:
           tags: |
             balimidi24/devsecops-project-spring-boot-blog-app:latest
             balimidi24/devsecops-project-spring-boot-blog-app:${{ needs.build.outputs.VERSION }}
-  
-  version-update:
-    needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test, docker-build]
-    name: Push Version into Repository
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v3
-      
-      - name: Getting Version from previous Jobs
-        run:  echo ${{ needs.build.outputs.VERSION }} > version
-
-      - uses: EndBug/add-and-commit@v7.0.0
-        with:
-          add: version
-          message: "version updated with tag ${{ needs.build.outputs.VERSION }}"
-          author_name: ${{ secrets.NAME }}
-          author_email: ${{ secrets.EMAIL }}
 
   Trivy :
     needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test, docker-build]
@@ -271,3 +253,21 @@ jobs:
         run: |
           mv trivy-results.html trivy-results-${{ needs.build.outputs.VERSION }}.html
           aws s3 cp trivy-results-${{ needs.build.outputs.VERSION }}.html s3://devsecops-project-spring-boot-blog-app/trivy/ 
+
+  version-update:
+    needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test, docker-build, Trivy]
+    name: Push Version into Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+      
+      - name: Getting Version from previous Jobs
+        run:  echo ${{ needs.build.outputs.VERSION }} > version
+
+      - uses: EndBug/add-and-commit@v7.0.0
+        with:
+          add: version
+          message: "version updated with tag ${{ needs.build.outputs.VERSION }}"
+          author_name: ${{ secrets.NAME }}
+          author_email: ${{ secrets.EMAIL }}
