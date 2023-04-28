@@ -51,7 +51,7 @@ public class DataCreator {
         userAuthority.setName(Constants.ROLE_USER);
         authorityService.save(userAuthority);
 
-        String pwd = "$2a$10$UtqWHf0BfCr41Nsy89gj4OCiL36EbTZ8g4o/IvFN2LArruHruiRXO"; // to make it faster //value is 'pass'
+        String pwd = System.getenv("DATA_CREATOR_SECRET"); // to make it faster //value is 'pass'
 
         AppUser adminUser = new AppUser("system", "System", "Tiwari", "system@email");
         adminUser.setPassword(pwd);

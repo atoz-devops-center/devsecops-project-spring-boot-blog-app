@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-
+    paths-ignore: 
+      - 'version'
+      - 'README.md'
 jobs:
   build:
     name: Build and Test
@@ -28,15 +30,15 @@ jobs:
           echo "$new_version" > version
           echo "VERSION=$new_version" >> "$GITHUB_OUTPUT"
       
-      # - name: Build
-      #   env:
-      #       DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-      #   run: mvn --batch-mode -DskipTests package
+      - name: Build
+        env:
+            DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: mvn --batch-mode -DskipTests package
 
-      # - name: Test
-      #   env:
-      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-      #   run: mvn --batch-mode -Dmaven.test.failure.ignore=true test     
+      - name: Test
+        env:
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test     
                        
     outputs:
       VERSION: "${{ steps.version.outputs.VERSION }}"
@@ -56,31 +58,35 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
-      # - name: Dependency-Check Run
-      #   env:
-      #     # actions/setup-java changes JAVA_HOME so it needs to be reset to match the dependency-check docker image
-      #     JAVA_HOME: /opt/jdk
-      #   uses: dependency-check/Dependency-Check_Action@main
-      #   id: dependency-check
-      #   with:
-      #     project: 'OWASP Security Shepherd'
-      #     path: '.'
-      #     format: 'HTML'
-      #     args: >
-      #       --format JSON
-      #       --prettyPrint
+      - name: Dependency-Check Run
+        env:
+          # actions/setup-java changes JAVA_HOME so it needs to be reset to match the dependency-check docker image
+          JAVA_HOME: /opt/jdk
+        uses: dependency-check/Dependency-Check_Action@main
+        id: dependency-check
+        with:
+          project: 'OWASP Security Shepherd'
+          path: '.'
+          format: 'HTML'
+          args: >
+            --format JSON
+            --prettyPrint
 
-      # - name: Publish Dependency-Check Results
-      #   uses: actions/upload-artifact@master
-      #   with:
-      #      name: dependency_check_report
-      #      path: ${{github.workspace}}/reports
+      - name: Publish Dependency-Check Results
+        uses: actions/upload-artifact@master
+        with:
+           name: dependency_check_report
+           path: ${{github.workspace}}/reports
   
-  vault-secrets:
+  
+  snyk-test:
     needs: [build, Dependency-Cheker]
-    name: Get Vault Secrets
-    runs-on: ubuntu-latest
+    name: Snyk to check for Vulnerabilities
+    runs-on: ubuntu-latest  
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -88,23 +94,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Import Secrets
-      #   id: import-secrets
-      #   uses: hashicorp/vault-action@v2
-      #   with:
-      #     url: http://${{ secrets.VAULT_URL }}:8200/
-      #     token: ${{ secrets.VAULT_TOKEN }}
-      #     method: approle
-      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
-      #     secretId: ${{ secrets.VAULT_SECRET }}
-      #     secrets: |
-      #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
-      #       secrets/creds/docker username | DOCKER_USERNAME;
-      #       secrets/creds/docker password | DOCKER_PASSWORD;
-      #       secrets/creds/snyk snyk_token | SNYK_TOKEN
+      - name: Import Secrets
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: http://${{ secrets.VAULT_URL }}:8200/
+          token: ${{ secrets.VAULT_TOKEN }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET }}
+          secrets: |
+            secrets/creds/snyk snyk_token | SNYK_TOKEN; 
 
+      - run: chmod +x mvnw
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/maven@master
+        env:
+          SNYK_TOKEN: ${{ steps.import-secrets.outputs.SNYK_TOKEN }}
+        with:
+         command: monitor
+        continue-on-error: true
+  
   sonarqube-analysis:
-    needs: [build, Dependency-Cheker, snyk-opensource-security, vault-secrets, snyk-code-security, snyk-opensource-monitor ]
+    needs: [build, Dependency-Cheker, snyk-test ]
     name: Sonarqube Analyze
     runs-on: ubuntu-latest
     steps:
@@ -131,80 +144,33 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Import Secrets
-      #   id: import-secrets
-      #   uses: hashicorp/vault-action@v2
-      #   with:
-      #     url: http://${{ secrets.VAULT_URL }}:8200/
-      #     token: ${{ secrets.VAULT_TOKEN }}
-      #     method: approle
-      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
-      #     secretId: ${{ secrets.VAULT_SECRET }}
-      #     secrets: |
-      #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
+      - name: Import Secrets
+        id: import-secrets
+        uses: hashicorp/vault-action@v2
+        with:
+          url: http://${{ secrets.VAULT_URL }}:8200/
+          token: ${{ secrets.VAULT_TOKEN }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET }}
+          secrets: |
+            secrets/creds/sonar sonar_token | SONAR_TOKEN;
       
-      # - name: Build and analyze
-      #   env:
-      #     SONAR_TOKEN: ${{ steps.import-secrets.outputs.SONAR_TOKEN }}
-      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-  
-  snyk-opensource-security:
-    needs: [build, Dependency-Cheker, vault-secrets]
-    name: Snyk Open Source Security
-    runs-on: ubuntu-latest  
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      
-      - run: chmod +x mvnw
-      # - name: Run Snyk to check for vulnerabilities
-      #   uses: snyk/actions/maven@master
-      #   env:
-      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-      #   continue-on-error: true
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ steps.import-secrets.outputs.SONAR_TOKEN }}
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
 
-  snyk-code-security:
-    needs: [build, Dependency-Cheker, vault-secrets]
-    name: Snyk Code Security
-    runs-on: ubuntu-latest  
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - run: chmod +x mvnw
-      # - name: Run Snyk to check for vulnerabilities
-      #   uses: snyk/actions/maven@master
-      #   env:
-      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-      #   with:
-      #    command: code test
-      #   continue-on-error: true
-
-  snyk-opensource-monitor:
-    needs: [build, Dependency-Cheker, vault-secrets]
-    name: Snyk Open Source Monitor
-    runs-on: ubuntu-latest  
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - run: chmod +x mvnw
-      # - name: Run Snyk to check for vulnerabilities
-      #   uses: snyk/actions/maven@master
-      #   env:
-      #     SNYK_TOKEN: ${{ needs.vault-secrets.outputs.SNYK_TOKEN }}
-      #   with:
-      #    command: monitor
-      #   continue-on-error: true
-  
   docker-build:
-    needs: [build, Dependency-Cheker, sonarqube-analysis, vault-secrets, snyk-opensource-security ]
+    needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test ]
     name: Docker Build and Push
     runs-on: ubuntu-latest
 
@@ -237,11 +203,11 @@ jobs:
           secrets: |
             secrets/creds/docker username | DOCKER_USERNAME;
             secrets/creds/docker password | DOCKER_PASSWORD;
-      # - name: Maven Install
-      #   # env:
-      #   #   DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-      #   run: | 
-      #     mvn clean compile package -Pdocker      
+      - name: Maven Install
+        env:
+          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+        run: | 
+          mvn clean compile package -Pdocker      
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -251,8 +217,6 @@ jobs:
         with:
           username: ${{ steps.import-secrets.outputs.DOCKER_USERNAME }}
           password: ${{ steps.import-secrets.outputs.DOCKER_PASSWORD }}
-          # username: ${{ secrets.DOCKER_USERNAME }}
-          # password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Build and push
         uses: docker/build-push-action@v4
@@ -262,3 +226,21 @@ jobs:
           tags: |
             balimidi24/devsecops-project-spring-boot-blog-app:latest
             balimidi24/devsecops-project-spring-boot-blog-app:${{ needs.build.outputs.VERSION }}
+  
+  version-update:
+    needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test, docker-build]
+    name: Push Version into Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+      
+      - name: Getting Version from previous Jobs
+        run:  echo ${{ needs.build.outputs.VERSION }} > version
+
+      - uses: EndBug/add-and-commit@v7.0.0
+        with:
+          add: version
+          message: "version updated with tag ${{ needs.build.outputs.VERSION }}"
+          author_name: ${{ secrets.NAME }}
+          author_email: ${{ secrets.EMAIL }}
