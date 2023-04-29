@@ -58,7 +58,7 @@ public class DataCreator {
         adminUser.setAuthorities(authorityService.findByNameIn(Constants.ROLE_ADMIN, Constants.ROLE_USER));
         userService.save(adminUser);
 
-        AppUser user1 = new AppUser("user1", "Ganesh", "Balimidi", "gt@email");
+        AppUser user1 = new AppUser("user1", "Ganesh", "Tiwari", "gt@email");
         user1.setPassword(pwd);
         user1.setAuthorities(authorityService.findByNameIn(Constants.ROLE_USER));
         userService.save(user1);
