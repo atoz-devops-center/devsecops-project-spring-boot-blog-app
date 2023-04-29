@@ -151,17 +151,17 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Import Secrets
-        id: import-secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: http://${{ secrets.VAULT_URL }}:8200/
-          token: ${{ secrets.VAULT_TOKEN }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET }}
-          secrets: |
-            secrets/creds/sonar sonar_token | SONAR_TOKEN;
+      # - name: Import Secrets
+      #   id: import-secrets
+      #   uses: hashicorp/vault-action@v2
+      #   with:
+      #     url: http://${{ secrets.VAULT_URL }}:8200/
+      #     token: ${{ secrets.VAULT_TOKEN }}
+      #     method: approle
+      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
+      #     secretId: ${{ secrets.VAULT_SECRET }}
+      #     secrets: |
+      #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
       
       - name: Build and analyze
         env:
@@ -191,18 +191,18 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Import Secrets
-        id: import-secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: http://${{ secrets.VAULT_URL }}:8200/
-          token: ${{ secrets.VAULT_TOKEN }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET }}
-          secrets: |
-            secrets/creds/docker username | DOCKER_USERNAME;
-            secrets/creds/docker password | DOCKER_PASSWORD;
+      # - name: Import Secrets
+      #   id: import-secrets
+      #   uses: hashicorp/vault-action@v2
+      #   with:
+      #     url: http://${{ secrets.VAULT_URL }}:8200/
+      #     token: ${{ secrets.VAULT_TOKEN }}
+      #     method: approle
+      #     roleId: ${{ secrets.VAULT_ROLE_ID }}
+      #     secretId: ${{ secrets.VAULT_SECRET }}
+      #     secrets: |
+      #       secrets/creds/docker username | DOCKER_USERNAME;
+      #       secrets/creds/docker password | DOCKER_PASSWORD;
       - name: Maven Install
         env:
           DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
