@@ -1,4 +1,5 @@
 FROM openjdk:17-alpine
+RUN apk add --no-cache freetype
 VOLUME /tmp
 VOLUME /X/attachments
 COPY target/*.jar app.jar

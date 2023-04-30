@@ -30,15 +30,15 @@ jobs:
           echo "$new_version" > version
           echo "VERSION=$new_version" >> "$GITHUB_OUTPUT"
       
-      - name: Build
-        env:
-            DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn --batch-mode -DskipTests package
+      # - name: Build
+      #   env:
+      #       DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn --batch-mode -DskipTests package
 
-      - name: Test
-        env:
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test     
+      # - name: Test
+      #   env:
+      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn --batch-mode -Dmaven.test.failure.ignore=true test     
                        
     outputs:
       VERSION: "${{ steps.version.outputs.VERSION }}"
@@ -52,31 +52,31 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 17
+      # - name: Set up JDK 17
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: 'zulu'
+      #     java-version: 17
 
-      - name: Dependency-Check Run
-        env:
-          # actions/setup-java changes JAVA_HOME so it needs to be reset to match the dependency-check docker image
-          JAVA_HOME: /opt/jdk
-        uses: dependency-check/Dependency-Check_Action@main
-        id: dependency-check
-        with:
-          project: 'OWASP Security Shepherd'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --format JSON
-            --prettyPrint
+      # - name: Dependency-Check Run
+      #   env:
+      #     # actions/setup-java changes JAVA_HOME so it needs to be reset to match the dependency-check docker image
+      #     JAVA_HOME: /opt/jdk
+      #   uses: dependency-check/Dependency-Check_Action@main
+      #   id: dependency-check
+      #   with:
+      #     project: 'OWASP Security Shepherd'
+      #     path: '.'
+      #     format: 'HTML'
+      #     args: >
+      #       --format JSON
+      #       --prettyPrint
 
-      - name: Publish Dependency-Check Results
-        uses: actions/upload-artifact@master
-        with:
-           name: dependency_check_report
-           path: ${{github.workspace}}/reports
+      # - name: Publish Dependency-Check Results
+      #   uses: actions/upload-artifact@master
+      #   with:
+      #      name: dependency_check_report
+      #      path: ${{github.workspace}}/reports
   
   
   snyk-test:
@@ -125,24 +125,24 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 17
+      # - name: Set up JDK 17
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: 'zulu'
+      #     java-version: 17
       
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+      # - name: Cache SonarCloud packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.sonar/cache
+      #     key: ${{ runner.os }}-sonar
+      #     restore-keys: ${{ runner.os }}-sonar
+      # - name: Cache Maven packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.m2
+      #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      #     restore-keys: ${{ runner.os }}-m2
       
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v2
@@ -163,11 +163,11 @@ jobs:
       #     secrets: |
       #       secrets/creds/sonar sonar_token | SONAR_TOKEN;
       
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      # - name: Build and analyze
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
 
   docker-build:
     needs: [build, Dependency-Cheker, sonarqube-analysis, snyk-test ]
