@@ -1,4 +1,4 @@
-FROM openjdk17:alpine-jre
+FROM openjdk17:alpine
 VOLUME /tmp
 VOLUME /X/attachments
 RUN apk update && apk add libxext
