@@ -10,6 +10,7 @@ FROM base as development
 CMD ["./mvnw", "spring-boot:run"]
 
 FROM base as build
+RUN chmod +x mvnw
 RUN ./mvnw package
 
 FROM eclipse-temurin:17-jdk-jammy as production
