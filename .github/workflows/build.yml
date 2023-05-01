@@ -106,15 +106,15 @@ jobs:
       #     secrets: |
       #       secrets/creds/snyk snyk_token | SNYK_TOKEN; 
 
-      - run: chmod +x mvnw
+      # - run: chmod +x mvnw
 
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-         command: monitor
-        continue-on-error: true
+      # - name: Run Snyk to check for vulnerabilities
+      #   uses: snyk/actions/maven@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #    command: monitor
+      #   continue-on-error: true
   
   sonarqube-analysis:
     needs: [build, Dependency-Cheker, snyk-test ]
