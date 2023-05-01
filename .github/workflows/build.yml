@@ -203,11 +203,11 @@ jobs:
       #     secrets: |
       #       secrets/creds/docker username | DOCKER_USERNAME;
       #       secrets/creds/docker password | DOCKER_PASSWORD;
-      - name: Maven Install
-        env:
-          DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
-        run: | 
-          mvn clean compile package -Pdocker      
+      # - name: Maven Install
+      #   env:
+      #     DATA_CREATOR_SECRET: ${{ secrets.DATA_CREATOR_SECRET }}
+      #   run: | 
+      #     mvn clean compile package -Pdocker      
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
